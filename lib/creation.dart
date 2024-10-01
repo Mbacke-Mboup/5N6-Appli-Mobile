@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:tp1/drawer.dart';
 import 'package:tp1/lib_http.dart';
@@ -67,8 +68,22 @@ class _CreationState extends State<Creation> {
                       req.name = _taskName.text;
                       req.deadline = DateTime.parse(_selectedDate);
                       addTask(req);
-                    }catch(e){
-                      print(e);
+                    }on NetworkException catch(e){
+                        ScaffoldMessenger.of(context)
+                            .showSnackBar(const SnackBar(content: Text("Nous rencontrons des difficulté au niveau du serveur. Veuillez réessayer plus tard.")));
+                    }on Exception catch(e) {
+                      String message = e.toString();
+                      if (message == "UsernameTooShort") {
+                        ScaffoldMessenger.of(context)
+                            .showSnackBar(const SnackBar(content: Text("Le nom d'utilisateur est trop court.")));
+                      }else if(message == "PasswordTooShort"){
+                        ScaffoldMessenger.of(context)
+                            .showSnackBar(const SnackBar(content: Text("Le mot de passe est trop court.")));
+                      }
+                      else if(message == "UsernameAlreadyTaken"){
+                        ScaffoldMessenger.of(context)
+                            .showSnackBar(const SnackBar(content: Text("Ce nom d'utilisateur est déja prit.")));
+                      }
                     }
                 Navigator.popAndPushNamed(context, "/acceuil");
               },

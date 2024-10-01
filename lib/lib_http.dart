@@ -75,13 +75,39 @@ Future<List<HomeItemResponse>> getTasks() async {
   }
 }
 
+class NetworkException implements Exception {
+  final String msg;
+  const NetworkException(this.msg);
+  String toString() => '$msg';
+}
+
 void addTask(AddTaskRequest req) async {
   try {
     await SingletonDio.getDio()
         .post(SingletonDio.server + 'api/add', data: req.toJson());
-  } catch (e) {
+  } on DioException catch(e){
+    if(e.response!.data == null || e.response!.data == ""){
+      throw NetworkException(e.toString());
+    }
+    String message = e.response!.data;
+    throw Exception(message);
+    /*if (message == "UsernameTooShort") {
+      throw Exception('UsernameTooShort');
+    }else if(message == "PasswordTooShort"){
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text("Le mot de passe est trop court.")));
+    }
+    else if(message == "UsernameAlreadyTaken"){
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text("Ce nom d'utilisateur est déja prit.")));
+    } else{
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text("Nous rencontrons des difficulté au niveau du serveur. Veuillez réessayer plus tard.")));
+    }*/
+
+  /*catch (e) {
     print(e);
-    rethrow;
+    rethrow;*/
   }
 }
 
